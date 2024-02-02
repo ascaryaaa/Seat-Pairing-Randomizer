@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seat Pairing Randomizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        .day {
+            margin-bottom: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Seat Pairing Randomizer</h2>
+
+<!-- Input textarea for student names -->
+<textarea id="studentInput" placeholder="Enter student names, each on a new line"></textarea>
+<button onclick="generateAndDisplay()">Generate and Display Seat Pairs</button>
+
+<div id="result" class="result"></div>
+
+<script>
+    function generateSeatPairs(students) {
+        let seatPairs = [];
+
+        for (let i = 0; i < students.length - 1; i++) {
+            let daySeatPairs = [];
+
+            for (let j = 0; j < students.length / 2; j++) {
+                let pair = `${students[j]} X ${students[students.length - 1 - j]}`;
+                daySeatPairs.push(pair);
+            }
+
+            seatPairs.push(daySeatPairs);
+
+            // Rotate students array for the next day
+            students.unshift(students.pop());
+        }
+
+        return seatPairs;
+    }
+
+    function displaySeatPairs(seatPairs) {
+        let resultElement = document.getElementById('result');
+        resultElement.innerHTML = '';
+
+        // Shuffle seat pairs array for more variation
+        shuffleArray(seatPairs);
+
+        for (let i = 0; i < seatPairs.length; i++) {
+            let dayElement = document.createElement('div');
+            dayElement.classList.add('day');
+            dayElement.innerHTML = `<p><strong>Day ${i + 1}</strong></p>`;
+
+            let table = document.createElement('table');
+            let rowCount = Math.ceil(seatPairs[i].length / 3);
+            let colCount = 3;
+
+            // Shuffle the seat pairs within each day for more variation
+            shuffleArray(seatPairs[i]);
+
+            for (let j = 0; j < rowCount; j++) {
+                let row = table.insertRow();
+
+                for (let k = 0; k < colCount; k++) {
+                    let cell = row.insertCell();
+                    let pairIndex = j * colCount + k;
+
+                    if (pairIndex < seatPairs[i].length) {
+                        cell.textContent = seatPairs[i][pairIndex];
+                    }
+                }
+            }
+
+            dayElement.appendChild(table);
+            resultElement.appendChild(dayElement);
+        }
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function generateAndDisplay() {
+        // Get student names from the input textarea
+        const studentInput = document.getElementById('studentInput').value;
+        const students = studentInput.split('\n').filter(name => name.trim() !== '');
+
+        if (students.length < 2) {
+            alert('Please enter at least two student names.');
+            return;
+        }
+
+        // Generate and display seat pairs
+        const seatPairs = generateSeatPairs(students);
+        displaySeatPairs(seatPairs);
+    }
+</script>
+
+</body>
+</html>
