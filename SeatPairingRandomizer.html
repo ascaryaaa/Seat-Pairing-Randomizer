@@ -39,6 +39,11 @@
             height: 100px;
             margin-bottom: 10px;
         }
+
+        input[type="number"] {
+            width: 60px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -47,12 +52,14 @@
 
 <!-- Input textarea for student names -->
 <textarea id="studentInput" placeholder="Enter student names, each on a new line"></textarea>
+<label for="rowCount">Number of Rows:</label>
+<input type="number" id="rowCount" value="3" min="1">
 <button onclick="generateAndDisplay()">Generate</button>
 
 <div id="result" class="result"></div>
 
 <script>
-    function generateSeatPairs(students) {
+    function generateSeatPairs(students, rowCount) {
         let seatPairs = [];
 
         for (let i = 0; i < students.length - 1; i++) {
@@ -72,7 +79,7 @@
         return seatPairs;
     }
 
-    function displaySeatPairs(seatPairs) {
+    function displaySeatPairs(seatPairs, rowCount) {
         let resultElement = document.getElementById('result');
         resultElement.innerHTML = '';
 
@@ -85,18 +92,17 @@
             dayElement.innerHTML = `<p><strong>Day ${i + 1}</strong></p>`;
 
             let table = document.createElement('table');
-            let rowCount = Math.ceil(seatPairs[i].length / 3);
-            let colCount = 3;
+            let colCount = Math.ceil(seatPairs[i].length / rowCount);
 
             // Shuffle the seat pairs within each day for more variation
             shuffleArray(seatPairs[i]);
 
-            for (let j = 0; j < rowCount; j++) {
+            for (let j = 0; j < colCount; j++) {
                 let row = table.insertRow();
 
-                for (let k = 0; k < colCount; k++) {
+                for (let k = 0; k < rowCount; k++) {
                     let cell = row.insertCell();
-                    let pairIndex = j * colCount + k;
+                    let pairIndex = j * rowCount + k;
 
                     if (pairIndex < seatPairs[i].length) {
                         cell.textContent = seatPairs[i][pairIndex];
@@ -126,9 +132,12 @@
             return;
         }
 
+        // Get the number of rows from the input
+        const rowCount = parseInt(document.getElementById('rowCount').value);
+
         // Generate and display seat pairs
-        const seatPairs = generateSeatPairs(students);
-        displaySeatPairs(seatPairs);
+        const seatPairs = generateSeatPairs(students, rowCount);
+        displaySeatPairs(seatPairs, rowCount);
     }
 </script>
 
