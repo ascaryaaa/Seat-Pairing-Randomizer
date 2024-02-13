@@ -9,137 +9,89 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-
         h2 {
             color: #333;
         }
-
         .result {
             margin-top: 20px;
         }
-
-        .day {
-            margin-bottom: 20px;
-        }
-
         table {
             border-collapse: collapse;
             width: 100%;
             margin-top: 10px;
         }
-
         th, td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
         }
-
-        textarea {
-            width: 100%;
-            height: 100px;
-            margin-bottom: 10px;
-        }
-
-        input[type="number"] {
-            width: 60px;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
+    <h2>Seat Pairing Randomizer</h2>
 
-<h2>Seat Pairing Randomizer</h2>
+    <!-- Input textarea for student names -->
+    <textarea id="studentInput" placeholder="Enter student names, each on a new line"></textarea>
+    <label for="rowCount">Number of Rows:</label>
+    <input type="number" id="rowCount" value="3" min="1">
+    <button onclick="generateAndDisplay()">Generate</button>
 
-<!-- Input textarea for student names -->
-<textarea id="studentInput" placeholder="Enter student names, each on a new line"></textarea>
-<label for="rowCount">Number of Rows:</label>
-<input type="number" id="rowCount" value="3" min="1">
-<button onclick="generateAndDisplay()">Generate</button>
+    <div id="result" class="result"></div>
 
-<div id="result" class="result"></div>
+    <script>
+        function generateAndDisplay() {
+            const studentInput = document.getElementById('studentInput').value;
+            const students = studentInput.split('\n').filter(name => name.trim() !== '');
 
-<script>
-    function generateSeatPairs(students, rowCount) {
-        let seatPairs = [];
-
-        for (let i = 0; i < students.length - 1; i++) {
-            let daySeatPairs = [];
-
-            for (let j = 0; j < students.length / 2; j++) {
-                let pair = `${students[j]} X ${students[students.length - 1 - j]}`;
-                daySeatPairs.push(pair);
+            if (students.length < 2) {
+                alert('Please enter at least two student names.');
+                return;
             }
 
-            seatPairs.push(daySeatPairs);
+            const rowCount = parseInt(document.getElementById('rowCount').value);
+            const resultElement = document.getElementById('result');
+            resultElement.innerHTML = '';
 
-            // Rotate students array for the next day
-            students.unshift(students.pop());
-        }
+            const seatPairs = [];
+            let shuffledStudents = [...students];
 
-        return seatPairs;
-    }
+            for (let i = 0; i < students.length - 1; i++) {
+                shuffledStudents.unshift(shuffledStudents.pop());
+                const daySeatPairs = [];
 
-    function displaySeatPairs(seatPairs, rowCount) {
-        let resultElement = document.getElementById('result');
-        resultElement.innerHTML = '';
+                for (let j = 0; j < shuffledStudents.length / 2; j++) {
+                    const pair = `${shuffledStudents[j]} X ${shuffledStudents[shuffledStudents.length - 1 - j]}`;
+                    daySeatPairs.push(pair);
+                }
 
-        // Shuffle seat pairs array for more variation
-        shuffleArray(seatPairs);
+                seatPairs.push(daySeatPairs);
+            }
 
-        for (let i = 0; i < seatPairs.length; i++) {
-            let dayElement = document.createElement('div');
-            dayElement.classList.add('day');
-            dayElement.innerHTML = `<p><strong>Day ${i + 1}</strong></p>`;
+            seatPairs.forEach((pairs, index) => {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('day');
+                dayElement.innerHTML = `<p><strong>Day ${index + 1}</strong></p>`;
 
-            let table = document.createElement('table');
-            let colCount = Math.ceil(seatPairs[i].length / rowCount);
+                const table = document.createElement('table');
+                const colCount = Math.ceil(pairs.length / rowCount);
 
-            // Shuffle the seat pairs within each day for more variation
-            shuffleArray(seatPairs[i]);
+                for (let i = 0; i < colCount; i++) {
+                    const row = table.insertRow();
 
-            for (let j = 0; j < colCount; j++) {
-                let row = table.insertRow();
+                    for (let j = 0; j < rowCount; j++) {
+                        const pairIndex = i * rowCount + j;
 
-                for (let k = 0; k < rowCount; k++) {
-                    let cell = row.insertCell();
-                    let pairIndex = j * rowCount + k;
-
-                    if (pairIndex < seatPairs[i].length) {
-                        cell.textContent = seatPairs[i][pairIndex];
+                        if (pairIndex < pairs.length) {
+                            const cell = row.insertCell();
+                            cell.textContent = pairs[pairIndex];
+                        }
                     }
                 }
-            }
 
-            dayElement.appendChild(table);
-            resultElement.appendChild(dayElement);
+                dayElement.appendChild(table);
+                resultElement.appendChild(dayElement);
+            });
         }
-    }
-
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
-
-    function generateAndDisplay() {
-        // Get student names from the input textarea
-        const studentInput = document.getElementById('studentInput').value;
-        const students = studentInput.split('\n').filter(name => name.trim() !== '');
-
-        if (students.length < 2) {
-            alert('Please enter at least two student names.');
-            return;
-        }
-
-        // Get the number of rows from the input
-        const rowCount = parseInt(document.getElementById('rowCount').value);
-
-        // Generate and display seat pairs
-        const seatPairs = generateSeatPairs(students, rowCount);
-        displaySeatPairs(seatPairs, rowCount);
-    }
-</script>
-
+    </script>
 </body>
 </html>
